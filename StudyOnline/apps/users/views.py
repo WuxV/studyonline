@@ -15,7 +15,7 @@ from django.shortcuts import render_to_response
 from .models import UserProfile, EmailVerifyRecord, Banner
 from .forms import LoginForm, RegisterForm, ForgetPwdForm, ModifyPwdForm, UserProfileForm
 from .forms import UserImageUploadForm, UserSendEmailCodeForm, UserUpdateEmailForm
-from utils.email_send import send_email
+from .tasks import asy_send_email
 from utils.mixin_utils import LoginRequiredMixin
 from operation.models import UserFavorite, UserMessage
 from courses.models import Course
@@ -92,7 +92,7 @@ class RegisterView(View):
             user_profile.is_active = False
             user_profile.save()
 
-            send_email(email, "register")
+            asy_send_email.delay(email, "register")
             return render(request, "send_success.html")
         else:
             return render(request, "register.html", {"register_form": register_form})
@@ -141,7 +141,7 @@ class ForgetPwdView(View):
         if forget_form.is_valid():
             email = request.POST.get("email", "")
             # FIXME 判断email是否在用户表中
-            send_email(email, "forget")
+            asy_send_email.delay(email, "forget")
             return render(request, "send_success.html")
         else:
             return render(request, "forgetpwd.html", {"forget_form": forget_form})
@@ -240,7 +240,7 @@ class UserSendEmailCodeView(LoginRequiredMixin, View):
             if UserProfile.objects.filter(email=email):
                 return HttpResponse('{"status":"failure", "msg":"邮箱已存在"}', content_type="application/json")
 
-            send_email(email, "update_email")
+            asy_send_email.delay(email, "update_email")
             return HttpResponse('{"status":"success"}', content_type="application/json")
         else:
             return HttpResponse(json.dumps(email_form.errors), content_type="application/json")

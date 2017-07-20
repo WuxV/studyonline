@@ -53,6 +53,6 @@ urlpatterns = [
     url(r'^static/(?P<path>.*)$', serve, {"document_root": STATIC_ROOT}),
 ]
 
-# 全局404页面配置
+# 全局404页面和500页面配置
 handler404 = 'users.views.page_not_found'
 handler500 = 'users.views.page_error'

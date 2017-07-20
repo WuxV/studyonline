@@ -14,6 +14,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 import sys
 
+import djcelery
+djcelery.setup_loader()
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
@@ -54,6 +57,7 @@ INSTALLED_APPS = [
     'captcha',
     'pure_pagination',
     'DjangoUeditor',
+    'djcelery',
 ]
 
 AUTH_USER_MODEL = "users.UserProfile"
@@ -104,6 +108,9 @@ DATABASES = {
     }
 }
 
+#配置celery的broker
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+BROKER_TRANSPORT = 'redis'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
